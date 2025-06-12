@@ -36,6 +36,8 @@
 #  include <nuttx/input/buttons.h>
 #endif
 
+#include "stm32_qencoder.h"
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -88,6 +90,19 @@ int stm32_bringup(void)
   if (ret < 0)
     {
       syslog(LOG_ERR, "ERROR: cdcacm_initialize failed: %d\n", ret);
+    }
+#endif
+
+#ifdef CONFIG_SENSORS_QENCODER
+  /* Initialize and register the qencoder driver */
+
+  ret = stm32_qeinitialize("dev/qe0", 3);
+  if (ret != OK)
+    {
+      syslog(LOG_ERR,
+             "ERROR: Failed to register the qencoder: %d\n",
+             ret);
+      return ret;
     }
 #endif
 

@@ -134,4 +134,11 @@ int stm32_pwm_setup(void);
 int stm32_adc_setup(void);
 #endif
 
+#ifdef CONFIG_SENSORS_QENCODER
+  /* Initialize and register the qencoder driver */
+
+int  stm32_qencoder_initialize(int devno, int timerno);
+
+#endif
+
 #endif /* __BOARDS_ARM_STM32_NUCLEO_F207ZG_SRC_NUCLEO_F207ZG_H */

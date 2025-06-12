@@ -206,4 +206,12 @@
 
 #define ADC1_DMA_CHAN DMAMAP_ADC1_1
 
+/* Quadrature Encoder
+ *
+
+ */
+
+#define  GPIO_TIM3_CH1IN GPIO_TIM3_CH1IN_1 
+#define  GPIO_TIM3_CH2IN GPIO_TIM3_CH2IN_3
+
 #endif /* __BOARDS_ARM_STM32_NUCLEO_F207ZG_INCLUDE_BOARD_H */
