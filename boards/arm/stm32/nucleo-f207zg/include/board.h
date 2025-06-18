@@ -206,4 +206,37 @@
 
 #define ADC1_DMA_CHAN DMAMAP_ADC1_1
 
+/* The STM32 F2 connects to a SMSC LAN8742A PHY using these pins:
+ *
+ *   STM32 F2 BOARD        LAN8742A
+ *   GPIO     SIGNAL       PIN NAME
+ *   -------- ------------ -------------
+ *   PG11     RMII_TX_EN   TXEN
+ *   PG13     RMII_TXD0    TXD0
+ *   PB13     RMII_TXD1    TXD1
+ *   PC4      RMII_RXD0    RXD0/MODE0
+ *   PC5      RMII_RXD1    RXD1/MODE1
+ *   PG2      RMII_RXER    RXER/PHYAD0 -- Not used
+ *   PA7      RMII_CRS_DV  CRS_DV/MODE2
+ *   PC1      RMII_MDC     MDC
+ *   PA2      RMII_MDIO    MDIO
+ *   N/A      NRST         nRST
+ *   PA1      RMII_REF_CLK nINT/REFCLK0
+ *   N/A      OSC_25M      XTAL1/CLKIN
+ *
+ * The PHY address is either 0 or 1, depending on the state of PG2 on reset.
+ * PG2 is not controlled but appears to result in a PHY address of 0.
+ */
+
+#define GPIO_ETH_RMII_TX_EN   (GPIO_ETH_RMII_TX_EN_2|GPIO_SPEED_100MHz)
+#define GPIO_ETH_RMII_TXD0    (GPIO_ETH_RMII_TXD0_2|GPIO_SPEED_100MHz)
+#define GPIO_ETH_RMII_TXD1    (GPIO_ETH_RMII_TXD1_1|GPIO_SPEED_100MHz)
+
+#define GPIO_ETH_MDC          (GPIO_ETH_MDC_0|GPIO_SPEED_100MHz)
+#define GPIO_ETH_MDIO         (GPIO_ETH_MDIO_0|GPIO_SPEED_100MHz)
+#define GPIO_ETH_RMII_CRS_DV  (GPIO_ETH_RMII_CRS_DV_0|GPIO_SPEED_100MHz)
+#define GPIO_ETH_RMII_REF_CLK (GPIO_ETH_RMII_REF_CLK_0|GPIO_SPEED_100MHz)
+#define GPIO_ETH_RMII_RXD0    (GPIO_ETH_RMII_RXD0_0|GPIO_SPEED_100MHz)
+#define GPIO_ETH_RMII_RXD1    (GPIO_ETH_RMII_RXD1_0|GPIO_SPEED_100MHz)
+
 #endif /* __BOARDS_ARM_STM32_NUCLEO_F207ZG_INCLUDE_BOARD_H */
