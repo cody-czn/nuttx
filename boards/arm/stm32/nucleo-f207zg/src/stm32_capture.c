@@ -1,5 +1,5 @@
 /****************************************************************************
- * boards/arm/stm32/nucleo-f207zg/src/stm32_bringup.c
+ * boards/arm/stm32/stm32f4discovery/src/stm32_capture.c
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -26,14 +26,45 @@
 
 #include <nuttx/config.h>
 
-#include <sys/types.h>
-#include <syslog.h>
 #include <errno.h>
+#include <debug.h>
+#include <nuttx/timers/capture.h>
+#include <arch/board/board.h>
+
+#include "chip.h"
+
+#include "stm32.h"
+#include "stm32_capture.h"
+#include "arm_internal.h"
 
 #include "nucleo-f207zg.h"
 
-#ifdef CONFIG_INPUT_BUTTONS
-#  include <nuttx/input/buttons.h>
+#if defined(CONFIG_CAPTURE)
+/****************************************************************************
+ * Pre-processor Definitions
+ ****************************************************************************/
+
+/* Capture
+ *
+ * 
+ */
+
+#define HAVE_CAPTURE 1
+
+#ifndef CONFIG_CAPTURE
+#  undef HAVE_CAPTURE
+#endif
+
+#ifndef CONFIG_STM32_TIM3
+#  undef HAVE_CAPTURE
+#endif
+
+#ifndef CONFIG_STM32_TIM3_CAP
+#  undef HAVE_CAPTURE
+#endif
+
+#if !defined(CONFIG_STM32_TIM3_CHANNEL) || CONFIG_STM32_TIM3_CHANNEL != STM32F4DISCOVERY_CAPTURECHANNEL
+#  undef HAVE_CAPTURE
 #endif
 
 /****************************************************************************
@@ -41,67 +72,39 @@
  ****************************************************************************/
 
 /****************************************************************************
- * Name: stm32_bringup
+ * Name: stm32_capture_setup
  *
  * Description:
- *   Perform architecture-specific initialization
+ *   Initialize and register the pwm capture driver.
  *
- *   CONFIG_BOARD_LATE_INITIALIZE=y :
- *     Called from board_late_initialize().
+ * Input parameters:
+ *   devpath - The full path to the driver to register. E.g., "/dev/capture0"
  *
- *   CONFIG_BOARD_LATE_INITIALIZE=n && CONFIG_BOARDCTL=y &&
- *   CONFIG_NSH_ARCHINIT:
- *     Called from the NSH library
+ * Returned Value:
+ *   Zero (OK) on success; a negated errno value on failure.
  *
  ****************************************************************************/
 
-int stm32_bringup(void)
+int stm32_capture_setup(const char *devpath)
 {
-  int ret = OK;
+#ifdef HAVE_CAPTURE
+  struct cap_lowerhalf_s *capture;
+  int ret;
 
-#ifdef CONFIG_ADC
-  /* Initialize ADC and register the ADC driver. */
+  capture = stm32_cap_initialize(STM32F4DISCOVERY_CAPTURETIMER);
 
-  ret = stm32_adc_setup();
+  /* Then register the pwm capture sensor */
+
+  ret = cap_register(devpath, capture);
   if (ret < 0)
     {
-      syslog(LOG_ERR, "ERROR: stm32_adc_setup failed: %d\n", ret);
+      mtrerr("ERROR: Error registering capture\n");
     }
+
+  return ret;
+#else
+  return -ENODEV;
 #endif
-
-#ifdef CONFIG_PWM
-  /* Initialize PWM and register the PWM driver. */
-
-  ret = stm32_pwm_setup();
-  if (ret < 0)
-    {
-      syslog(LOG_ERR, "ERROR: stm32_pwm_setup failed: %d\n", ret);
-    }
-#endif
-
-#if defined(CONFIG_CDCACM) && !defined(CONFIG_CDCACM_CONSOLE)
-  /* Initialize CDCACM */
-
-  syslog(LOG_INFO, "Initialize CDCACM device\n");
-
-  ret = cdcacm_initialize(0, NULL);
-  if (ret < 0)
-    {
-      syslog(LOG_ERR, "ERROR: cdcacm_initialize failed: %d\n", ret);
-    }
-#endif
-
-#ifdef CONFIG_CAPTURE
-  /* Initialize Capture and register the Capture driver. */
-
-  ret = stm32_capture_setup("/dev/capture0");
-  if (ret < 0)
-    {
-      syslog(LOG_ERR, "ERROR: stm32_capture_setup failed: %d\n", ret);
-      return ret;
-    }
-#endif
-
-  UNUSED(ret);
-  return OK;
 }
+
+#endif /* CONFIG_CAPTURE */

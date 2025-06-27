@@ -134,4 +134,8 @@ int stm32_pwm_setup(void);
 int stm32_adc_setup(void);
 #endif
 
+#ifdef CONFIG_CAPTURE
+int stm32_capture_setup(const char *devpath);
+#endif
+
 #endif /* __BOARDS_ARM_STM32_NUCLEO_F207ZG_SRC_NUCLEO_F207ZG_H */
